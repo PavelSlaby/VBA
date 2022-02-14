@@ -1,0 +1,34 @@
+Sub get_rate_curve()
+
+Dim cn      As Object
+Dim rs      As Object
+Dim query   As Object
+Dim querytext As String
+Dim DataSource As String 'server name
+Dim InDB As String 'initial database
+
+Set cn = CreateObject("ADODB.Connection") '= New ADODB.Connection - requires proper setup of references
+Set query = CreateObject("ADODB.Command")
+
+connstring = "Provider=sqloledb;Data Source= DataSource ;Initial Catalog=InDB;Integrated Security=SSPI;"
+querytext = Sheets("Query").Range("A1")
+
+querytext = Replace(querytext, "@RepDate", "'2022-02-02'")
+
+cn.Open (connstring)
+ 
+query.ActiveConnection = cn
+query.CommandText = querytext
+
+Set rs = query.Execute
+
+    For i = 0 To rs.Fields.Count - 1
+         ThisWorkbook.Sheets("Rate_Curve").Cells(1, i + 1) = rs.Fields(i).Name
+    Next i
+
+    Sheets("Rate_Curve").Range("A2").CopyFromRecordset rs
+
+rs.Close
+cn.Close
+
+End Sub
